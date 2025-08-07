@@ -5,27 +5,30 @@ A .NET 9 Web API for retrieving client account statements from multiple company 
 ## Project Structure
 
 ```
-ClientStatementPortal/
-├── Controllers/
-│   └── ClientStatementController.cs
-├── Services/
-│   └── StatementRetrievalService.cs
-├── Interfaces/
-│   └── IStatementRetrievalService.cs
-├── Helpers/
-│   └── StoredProcedureRunner.cs
-├── Models/
-│   └── CompanyConnection.cs
-├── DTOs/
-│   ├── ClientAccountStatementDto.cs
-│   └── AccountTransactionDto.cs
-├── Data/
-│   └── DbMapperContext.cs
-├── Responses/
-│   └── ApiResponse.cs
-├── appsettings.json
-├── Program.cs
-├── ClientStatementPortal.csproj
+ClientStatementPortal  
+├── Controllers  
+│   └── ClientStatementController.cs  
+		SupplierStatementController.cs
+├── Services  
+	IStatementRetrievalService
+│   └── StatementRetrievalService.cs  
+├── Interfaces  
+│   └── IStatementRetrievalService.cs  
+├── Helpers  
+│   └── StoredProcedureRunner.cs  
+├── Models  
+│   └── CompanyConnection.cs  
+├── DTOs  
+│   ├── ClientAccountStatementDto.cs  
+│   └── AccountTransactionDto.cs  
+		SupplierAccountStatementDto
+├── Data  
+│   └── DbMapperContext.cs  
+├── Responses  
+│   └── ApiResponse.cs  
+├── appsettings.json  
+├── Program.cs  
+├── ClientStatementPortal.csproj  
 └── README.md
 ```
 
