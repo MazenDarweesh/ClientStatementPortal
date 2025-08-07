@@ -39,8 +39,4 @@ ClientStatementPortal
 3. Run `dotnet ef database update` to apply migrations (if any).
 4. Start the API with `dotnet run`.
 
-## Endpoints
-
-- `GET /api/ClientStatement/statement?companyKey=...&clientId=...&companyId=...`
-
 Returns the client account statement for the specified company and client.
