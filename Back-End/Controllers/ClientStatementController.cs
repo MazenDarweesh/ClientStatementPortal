@@ -12,15 +12,15 @@ public class ClientStatementController : ControllerBase
     }
 
     [HttpGet("statement")]
-    public async Task<IActionResult> GetStatement([FromQuery] string companyKey, [FromQuery] string hash)
+    public async Task<IActionResult> GetDetails([FromQuery] string key, [FromQuery] string hash)
     {
-        var result = await _service.GetCustomerStatementAsync(companyKey, hash);
+        var result = await _service.GetCustomerDetailsAsync(key, hash);
         return result.Success ? Ok(result) : BadRequest(result);
     }
     [HttpGet("transactions")]
-    public async Task<IActionResult> GetTransactions([FromQuery] string companyKey, [FromQuery] string hash)
+    public async Task<IActionResult> GetTransactions([FromQuery] string key, [FromQuery] string hash)
     {
-        var result = await _service.GetCustomerTransactionsAsync(companyKey, hash);
+        var result = await _service.GetCustomerTransactionsAsync(key, hash);
         return result.Success ? Ok(result) : BadRequest(result);
     }
 }

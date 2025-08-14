@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace ClientStatementPortal.Controllers
 {
@@ -15,16 +14,16 @@ namespace ClientStatementPortal.Controllers
         }
 
         [HttpGet("statement")]
-        public async Task<IActionResult> GetStatement([FromQuery] string companyKey, [FromQuery] string hash)
+        public async Task<IActionResult> GetDetails([FromQuery] string key, [FromQuery] string hash)
         {
-            var result = await _service.GetSupplierStatementAsync(companyKey, hash);
+            var result = await _service.GetSupplierDetailsAsync(key, hash);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
         [HttpGet("transactions")]
-        public async Task<IActionResult> GetTransactions([FromQuery] string companyKey, [FromQuery] string hash)
+        public async Task<IActionResult> GetTransactions([FromQuery] string key, [FromQuery] string hash)
         {
-            var result = await _service.GetSupplierTransactionsAsync(companyKey, hash);
+            var result = await _service.GetSupplierTransactionsAsync(key, hash);
             return result.Success ? Ok(result) : BadRequest(result);
         }
     }

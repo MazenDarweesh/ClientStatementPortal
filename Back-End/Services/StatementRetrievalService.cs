@@ -1,8 +1,8 @@
-﻿using ClientStatementPortal.Models;
+﻿using ClientStatementPortal.DTOs;
+using ClientStatementPortal.Models;
 
-public class StatementRetrievalService : IStatementRetrievalService
+public class StatementRetrievalService : IStatementRetrievalService         
 {
-
     private readonly StoredProcedureRunner _spRunner;
 
     public StatementRetrievalService(DbMapperContext context, StoredProcedureRunner spRunner)
@@ -10,64 +10,65 @@ public class StatementRetrievalService : IStatementRetrievalService
         _spRunner = spRunner;
     }
 
-    public async Task<ApiResponse<ClientAccountStatementDto>> GetCustomerStatementAsync(string companyKey, string hash)
+    public async Task<ApiResponse<PersonalDetailsDto>> GetCustomerDetailsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
-        parameters.Add("@hash", hash);
+        parameters.Add("@URLHash", hash);
 
-        var result = await _spRunner.ExecuteFirstOrDefaultAsync<ClientAccountStatementDto>(
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<PersonalDetailsDto>(
             companyKey,
-            "sp_GetCustomerStatement",
+            "SP_GetCustomerDetailsByURLHash",
             parameters);
 
         return result != null
-            ? ApiResponse<ClientAccountStatementDto>.Ok(result)
-            : ApiResponse<ClientAccountStatementDto>.Fail("Statement not found", "NotFound");
+            ? ApiResponse<PersonalDetailsDto>.Ok(result)
+            : ApiResponse<PersonalDetailsDto>.Fail("Customer details not found", "NotFound");
     }
-    public async Task<ApiResponse<List<AccountTransactionDto>>> GetCustomerTransactionsAsync(string companyKey, string hash)
+
+    public async Task<ApiResponse<List<StatementEntryDto>>> GetCustomerTransactionsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
-        parameters.Add("@hash", hash);
+        parameters.Add("@URLHash", hash);
 
-        var result = await _spRunner.ExecuteAsync<AccountTransactionDto>(
+        var result = await _spRunner.ExecuteAsync<StatementEntryDto>(
             companyKey,
-            "sp_GetCustomerTransactions",
+            "SP_GetCustomerStatmentByURLHash",
             parameters);
 
         var list = result.ToList();
 
         return list.Any()
-            ? ApiResponse<List<AccountTransactionDto>>.Ok(list)
-            : ApiResponse<List<AccountTransactionDto>>.Fail("No transactions found", "NotFound");
+            ? ApiResponse<List<StatementEntryDto>>.Ok(list)
+            : ApiResponse<List<StatementEntryDto>>.Fail("No customer transactions found", "NotFound");
     }
 
-    public async Task<ApiResponse<SupplierAccountStatementDto>> GetSupplierStatementAsync(string companyKey, string hash)
+    public async Task<ApiResponse<PersonalDetailsDto>> GetSupplierDetailsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
-        parameters.Add("@hash", hash);
+        parameters.Add("@URLHash", hash);
 
-        var result = await _spRunner.ExecuteFirstOrDefaultAsync<SupplierAccountStatementDto>(
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<PersonalDetailsDto>(
             companyKey,
-            "sp_GetSupplierStatement", 
+            "SP_GetSupplierDetailsByURLHash",
             parameters);
 
         return result != null
-            ? ApiResponse<SupplierAccountStatementDto>.Ok(result)
-            : ApiResponse<SupplierAccountStatementDto>.Fail("Supplier statement not found", "NotFound");
+            ? ApiResponse<PersonalDetailsDto>.Ok(result)
+            : ApiResponse<PersonalDetailsDto>.Fail("Supplier details not found", "NotFound");
     }
 
-    public async Task<ApiResponse<List<AccountTransactionDto>>> GetSupplierTransactionsAsync(string companyKey, string hash)
+    public async Task<ApiResponse<List<StatementEntryDto>>> GetSupplierTransactionsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
-        parameters.Add("@hash", hash);
+        parameters.Add("@URLHash", hash);
 
-        var result = await _spRunner.ExecuteAsync<AccountTransactionDto>(
+        var result = await _spRunner.ExecuteAsync<StatementEntryDto>(
             companyKey,
-            "sp_GetSupplierTransactions", // your actual stored procedure name
+            "SP_GetSupplierStatmentByURLHash",
             parameters);
 
         return result != null && result.Any()
-            ? ApiResponse<List<AccountTransactionDto>>.Ok(result.ToList())
-            : ApiResponse<List<AccountTransactionDto>>.Fail("No supplier transactions found", "NotFound");
+            ? ApiResponse<List<StatementEntryDto>>.Ok(result.ToList())
+            : ApiResponse<List<StatementEntryDto>>.Fail("No supplier transactions found", "NotFound");
     }
 }

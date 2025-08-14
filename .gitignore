@@ -3,6 +3,27 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Backend (optional if you already added)
+backend/bin/
+backend/obj/
+
+# Frontend: Angular 20 (statement-viewer)
+statement-viewer/node_modules/
+statement-viewer/dist/
+statement-viewer/.angular/
+statement-viewer/.angular-cache/
+statement-viewer/.vscode/
+statement-viewer/.env
+
+# IDE/Editor
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+
 # User-specific files
 *.rsuser
 *.suo
