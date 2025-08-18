@@ -1,12 +1,14 @@
 ﻿using ClientStatementPortal.DTOs;
 using ClientStatementPortal.Models;
 
-public class StatementRetrievalService : IStatementRetrievalService         
+public class StatementRetrievalService : IStatementRetrievalService
 {
     private readonly StoredProcedureRunner _spRunner;
+    private readonly DbMapperContext _dbMapperContext;
 
     public StatementRetrievalService(DbMapperContext context, StoredProcedureRunner spRunner)
     {
+        _dbMapperContext = context;
         _spRunner = spRunner;
     }
 
@@ -19,6 +21,12 @@ public class StatementRetrievalService : IStatementRetrievalService
             companyKey,
             "SP_GetCustomerDetailsByURLHash",
             parameters);
+
+        if(result != null)
+        {
+            // Query the DynamicProURL value from the DB mapper
+            result.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
+        }
 
         return result != null
             ? ApiResponse<PersonalDetailsDto>.Ok(result)
@@ -51,6 +59,12 @@ public class StatementRetrievalService : IStatementRetrievalService
             companyKey,
             "SP_GetSupplierDetailsByURLHash",
             parameters);
+
+        if (result != null)
+        {
+            result.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
+
+        }
 
         return result != null
             ? ApiResponse<PersonalDetailsDto>.Ok(result)

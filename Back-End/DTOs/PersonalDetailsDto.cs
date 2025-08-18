@@ -24,5 +24,7 @@ namespace ClientStatementPortal.DTOs
         /// The company name.
         /// </summary>
         public string Company { get; set; }
+
+        public string  DynamicProUrl { get; set; }
     }
 }

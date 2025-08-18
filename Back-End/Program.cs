@@ -1,4 +1,6 @@
+using ClientStatementPortal.Interfaces;
 using ClientStatementPortal.Models;
+using ClientStatementPortal.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +36,7 @@ builder.Services.AddDbContext<DbMapperContext>(options =>
 
 // Register services
 builder.Services.AddScoped<IStatementRetrievalService, StatementRetrievalService>();
+builder.Services.AddScoped<IVisitorEventService, VisitorEventService>();
 builder.Services.AddScoped<StoredProcedureRunner>();
 
 var app = builder.Build();

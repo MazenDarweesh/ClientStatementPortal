@@ -24,7 +24,9 @@ public partial class DbMapperContext : DbContext
     {
         modelBuilder.Entity<CompanyConnection>(entity =>
         {
-            entity.HasKey(e => e.CompanyKey).HasName("PK__CompanyC__5A25F59BDDABF9AF");
+            entity.HasKey(e => e.Id).HasName("PK_CompanyConnections_Id");
+
+            entity.HasIndex(e => e.CompanyKey, "UQ_CompanyConnections_CompanyKey").IsUnique();
 
             entity.Property(e => e.CompanyKey)
                 .HasMaxLength(100)
@@ -32,6 +34,9 @@ public partial class DbMapperContext : DbContext
             entity.Property(e => e.DatabaseName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.DynamicProUrl)
+                .HasMaxLength(500)
+                .HasColumnName("DynamicProURL");
             entity.Property(e => e.Password)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -43,6 +48,7 @@ public partial class DbMapperContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });
+
         modelBuilder.Entity<VisitorEvent>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__VisitorE__3214EC078D1AAEB3");
@@ -59,10 +65,15 @@ public partial class DbMapperContext : DbContext
             entity.Property(e => e.EventType).HasMaxLength(50);
             entity.Property(e => e.IpAddress).HasMaxLength(45);
             entity.Property(e => e.UserAgent).HasMaxLength(500);
+
+            entity.HasOne(d => d.CompanyConnection).WithMany(p => p.VisitorEvents)
+                .HasForeignKey(d => d.CompanyConnectionId)
+                .HasConstraintName("FK_VisitorEvents_CompanyConnections");
         });
 
         OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+ 
 }

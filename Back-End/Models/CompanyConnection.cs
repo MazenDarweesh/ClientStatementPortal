@@ -17,8 +17,13 @@ public partial class CompanyConnection
 
     public bool UseWindowsAuth { get; set; }
 
+    public int Id { get; set; }
+
+    public string? DynamicProUrl { get; set; }
+
+    public virtual ICollection<VisitorEvent> VisitorEvents { get; set; } = new List<VisitorEvent>();
     public string ServerIPWithoutPort =>
-        string.IsNullOrWhiteSpace(ServerIp) ? string.Empty : ServerIp.Split(':')[0];
+    string.IsNullOrWhiteSpace(ServerIp) ? string.Empty : ServerIp.Split(':')[0];
     public string ConnectionString =>
         UseWindowsAuth
         ? $"Server={ServerIp};Database={DatabaseName};Integrated Security=True;TrustServerCertificate=True;"
