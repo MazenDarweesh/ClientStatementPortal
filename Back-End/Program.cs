@@ -1,7 +1,11 @@
+using ClientStatementPortal.DTOs;
 using ClientStatementPortal.Interfaces;
 using ClientStatementPortal.Models;
 using ClientStatementPortal.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,23 +17,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("LocalDev", cors =>
-        cors.WithOrigins("http://localhost:4200")
+        cors.AllowAnyOrigin()
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials());
+            .AllowAnyMethod());
 });
 builder.Services.AddControllers().AddJsonOptions(o =>
     o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
 
-//var AllowSpecificOrigins = "_AllowSpecificOrigins";
-//builder.Services.AddCors(optinos => {
-//    optinos.AddPolicy(name: AllowSpecificOrigins, policy =>
-//    {
-//        policy.WithOrigins("http://localhost:4200")
-//            .AllowAnyHeader()
-//            .AllowAnyMethod();
-//    });
-//});
 // Register DbContext
 builder.Services.AddDbContext<DbMapperContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -40,6 +34,49 @@ builder.Services.AddScoped<IVisitorEventService, VisitorEventService>();
 builder.Services.AddScoped<StoredProcedureRunner>();
 
 var app = builder.Build();
+
+// Global exception handler that customizes the status code based on exception type.
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (exceptionHandlerFeature != null)
+        {
+            var exception = exceptionHandlerFeature.Error;
+            int statusCode;
+            string errorMessage;
+
+            switch (exception)
+            {
+                case ArgumentNullException _:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    errorMessage = "A required value is missing.";
+                    break;
+                case UnauthorizedAccessException _:
+                    statusCode = (int)HttpStatusCode.Forbidden;
+                    errorMessage = "Access denied.";
+                    break;
+                // Add additional cases as needed.
+                default:
+                    statusCode = (int)HttpStatusCode.InternalServerError;
+                    errorMessage = "Internal server error. Please try again later.";
+                    break;
+            }
+
+            // In development, return the real exception message.
+            if (app.Environment.IsDevelopment())
+            {
+                errorMessage = exception.Message;
+            }
+
+            context.Response.StatusCode = statusCode;
+            await context.Response.WriteAsync(JsonSerializer.Serialize(errorMessage));
+        }
+    });
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

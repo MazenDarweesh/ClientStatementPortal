@@ -32,14 +32,6 @@ namespace ClientStatementPortal.Services
             if (string.IsNullOrWhiteSpace(dto.EventType))
                 return ApiResponse<VisitorEventDto>.Fail("EventType is required", "ValidationError");
 
-            // Fill IP if not provided
-            if (string.IsNullOrWhiteSpace(dto.IpAddress))
-                dto.IpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
-
-            // Fill UserAgent if not provided
-            if (string.IsNullOrWhiteSpace(dto.UserAgent) && httpContext.Request.Headers.ContainsKey("User-Agent"))
-                dto.UserAgent = httpContext.Request.Headers["User-Agent"].ToString();
-
             // Lookup CompanyConnectionId based on CompanyKey
             var companyConnection = await _context.CompanyConnections
                 .FirstOrDefaultAsync(cc => cc.CompanyKey == dto.CompanyKey);
@@ -51,11 +43,11 @@ namespace ClientStatementPortal.Services
             {
                 EventType = dto.EventType,
                 CompanyKey = dto.CompanyKey,
-                IpAddress = dto.IpAddress,
-                UserAgent = dto.UserAgent,
-                EventDate = dto.EventDate ?? DateTime.UtcNow,
-                AccountName = dto.AccountName,
                 AccountType = dto.AccountType,
+                AccountName = dto.AccountName,
+                EventDate =  DateTime.UtcNow,
+                IpAddress = httpContext.Connection.RemoteIpAddress?.ToString(),
+                UserAgent = httpContext.Request.Headers["User-Agent"].ToString(),
                 CompanyConnectionId = companyConnectionId
             };
 

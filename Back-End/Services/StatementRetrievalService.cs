@@ -1,6 +1,6 @@
 ﻿using ClientStatementPortal.DTOs;
 using ClientStatementPortal.Models;
-
+using System.Collections.Generic;
 public class StatementRetrievalService : IStatementRetrievalService
 {
     private readonly StoredProcedureRunner _spRunner;
@@ -26,11 +26,10 @@ public class StatementRetrievalService : IStatementRetrievalService
         {
             // Query the DynamicProURL value from the DB mapper
             result.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
+            return ApiResponse<PersonalDetailsDto>.Ok(result);
         }
-
-        return result != null
-            ? ApiResponse<PersonalDetailsDto>.Ok(result)
-            : ApiResponse<PersonalDetailsDto>.Fail("Customer details not found", "NotFound");
+        else
+            return ApiResponse<PersonalDetailsDto>.Fail("Can't Access");
     }
 
     public async Task<ApiResponse<List<StatementEntryDto>>> GetCustomerTransactionsAsync(string companyKey, string hash)
@@ -45,9 +44,10 @@ public class StatementRetrievalService : IStatementRetrievalService
 
         var list = result.ToList();
 
-        return list.Any()
-            ? ApiResponse<List<StatementEntryDto>>.Ok(list)
-            : ApiResponse<List<StatementEntryDto>>.Fail("No customer transactions found", "NotFound");
+        if (list.Any())
+            return ApiResponse<List<StatementEntryDto>>.Ok(list);
+        else
+            return ApiResponse<List<StatementEntryDto>>.Fail("Can't Access");
     }
 
     public async Task<ApiResponse<PersonalDetailsDto>> GetSupplierDetailsAsync(string companyKey, string hash)
@@ -63,12 +63,11 @@ public class StatementRetrievalService : IStatementRetrievalService
         if (result != null)
         {
             result.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
-
+            return ApiResponse<PersonalDetailsDto>.Ok(result);
         }
 
-        return result != null
-            ? ApiResponse<PersonalDetailsDto>.Ok(result)
-            : ApiResponse<PersonalDetailsDto>.Fail("Supplier details not found", "NotFound");
+        // Return success even if no supplier details found.
+        return ApiResponse<PersonalDetailsDto>.Ok(null, "Supplier details not found");
     }
 
     public async Task<ApiResponse<List<StatementEntryDto>>> GetSupplierTransactionsAsync(string companyKey, string hash)
@@ -81,8 +80,9 @@ public class StatementRetrievalService : IStatementRetrievalService
             "SP_GetSupplierStatmentByURLHash",
             parameters);
 
-        return result != null && result.Any()
-            ? ApiResponse<List<StatementEntryDto>>.Ok(result.ToList())
-            : ApiResponse<List<StatementEntryDto>>.Fail("No supplier transactions found", "NotFound");
+        var list = result.ToList();
+
+        // Return success with empty list if no supplier transactions found.
+        return ApiResponse<List<StatementEntryDto>>.Ok(list, list.Any() ? null : "No supplier transactions found");
     }
 }
