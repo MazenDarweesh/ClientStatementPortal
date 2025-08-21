@@ -55,6 +55,10 @@ app.UseExceptionHandler(errorApp =>
                     statusCode = (int)HttpStatusCode.BadRequest;
                     errorMessage = "A required value is missing.";
                     break;
+                case KeyNotFoundException _:
+                    statusCode = (int)HttpStatusCode.NotFound;
+                    errorMessage = "Resource not found.";
+                    break;
                 case UnauthorizedAccessException _:
                     statusCode = (int)HttpStatusCode.Forbidden;
                     errorMessage = "Access denied.";

@@ -1,11 +1,8 @@
 // Services/VisitorEventService.cs
-using ClientStatementPortal.DTOs;
 using ClientStatementPortal.Interfaces;
 using ClientStatementPortal.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
+
 
 namespace ClientStatementPortal.Services
 {
