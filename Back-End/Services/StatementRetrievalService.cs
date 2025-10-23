@@ -98,4 +98,36 @@ public class StatementRetrievalService : IStatementRetrievalService
 
         return ApiResponse<List<StatementEntryDto>>.Ok(list);
     }
+
+    //SP_GetCustomerStatmentTotalsByURLHash Create  a method similar to GetCustomerDetailsAsync for this stored procedure use StatmentTotalsDto
+    public async Task<ApiResponse<StatmentTotalsDto>> GetCustomerStatementTotalsAsync(string companyKey, string hash)
+    {
+        var parameters = new Dapper.DynamicParameters();
+        parameters.Add("@URLHash", hash);
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<StatmentTotalsDto>(
+            companyKey,
+            "SP_GetCustomerStatmentTotalsByURLHash",
+            parameters);
+        if (!result.Success)
+            return ApiResponse<StatmentTotalsDto>.Fail(result.Message, result.ErrorType);
+        if (result.Data == null)
+            return ApiResponse<StatmentTotalsDto>.Fail("Can't Access", "NotFound");
+        return ApiResponse<StatmentTotalsDto>.Ok(result.Data);
+    }
+
+    // SP_GetSupplierStatmentTotalsByURLHash Create  a method similar to GetSupplierDetailsAsync for this stored procedure use StatmentTotalsDto
+    public async Task<ApiResponse<StatmentTotalsDto>> GetSupplierStatementTotalsAsync(string companyKey, string hash)
+    {
+        var parameters = new Dapper.DynamicParameters();
+        parameters.Add("@URLHash", hash);
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<StatmentTotalsDto>(
+            companyKey,
+            "SP_GetSupplierStatmentTotalsByURLHash",
+            parameters);
+        if (!result.Success)
+            return ApiResponse<StatmentTotalsDto>.Fail(result.Message, result.ErrorType);
+        if (result.Data == null)
+            return ApiResponse<StatmentTotalsDto>.Fail("Can't Access", "NotFound");
+        return ApiResponse<StatmentTotalsDto>.Ok(result.Data);
+    }
 }

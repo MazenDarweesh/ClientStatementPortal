@@ -1,9 +1,10 @@
-using ClientStatementPortal.DTOs;
+﻿using ClientStatementPortal.DTOs;
 using ClientStatementPortal.Interfaces;
 using ClientStatementPortal.Models;
 using ClientStatementPortal.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using System.Net;
 using System.Text.Json;
 
@@ -11,7 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(o =>
+    o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
@@ -21,8 +23,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
-builder.Services.AddControllers().AddJsonOptions(o =>
-    o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
+
 
 // Register DbContext
 builder.Services.AddDbContext<DbMapperContext>(options =>
@@ -89,10 +90,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDefaultFiles(); // Optional: يخلي index.html يشتغل تلقائياً
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "wwwroot")
+    ),
+    RequestPath = ""
+});
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.UseCors("LocalDev");
+app.UseAuthorization();
+
+// Map API controllers
 app.MapControllers();
+
+// Fallback to Angular index.html for SPA routes
+app.MapFallbackToFile(Path.Combine("index.html"));
+
 
 app.Run();
 
