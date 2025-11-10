@@ -30,6 +30,41 @@ public class StatementRetrievalService : IStatementRetrievalService
         result.Data.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
         return ApiResponse<PersonalDetailsDto>.Ok(result.Data);
     }
+    public async Task<ApiResponse<PersonalDetailsDto>> GetSupplierDetailsAsync(string companyKey, string hash)
+    {
+        var parameters = new Dapper.DynamicParameters();
+        parameters.Add("@URLHash", hash);
+
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<PersonalDetailsDto>(
+            companyKey,
+            "SP_GetSupplierDetailsByURLHash",
+            parameters);
+
+        if (!result.Success)
+            return ApiResponse<PersonalDetailsDto>.Fail(result.Message, result.ErrorType);
+        if (result.Data == null)
+            return ApiResponse<PersonalDetailsDto>.Fail("Can't Access", "NotFound");
+
+        // Query the DynamicProURL value from the DB mapper
+        result.Data.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
+        return ApiResponse<PersonalDetailsDto>.Ok(result.Data);
+    }
+    public async Task<ApiResponse<PersonalDetailsDto>> GetCustomerSupplierDetailsAsync(string companyKey, string hash)
+    {
+        var parameters = new Dapper.DynamicParameters();
+        parameters.Add("@URLHash", hash);
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<PersonalDetailsDto>(
+            companyKey,
+            "SP_GetCustomerSupplierDetailsByURLHash",
+            parameters);
+        if (!result.Success)
+            return ApiResponse<PersonalDetailsDto>.Fail(result.Message, result.ErrorType);
+        if (result.Data == null)
+            return ApiResponse<PersonalDetailsDto>.Fail("Can't Access", "NotFound");
+        // Query the DynamicProURL value from the DB mapper
+        result.Data.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
+        return ApiResponse<PersonalDetailsDto>.Ok(result.Data);
+    }
 
     public async Task<ApiResponse<List<StatementEntryDto>>> GetCustomerTransactionsAsync(string companyKey, string hash)
     {
@@ -54,27 +89,6 @@ public class StatementRetrievalService : IStatementRetrievalService
 
         return ApiResponse<List<StatementEntryDto>>.Ok(list);
     }
-
-    public async Task<ApiResponse<PersonalDetailsDto>> GetSupplierDetailsAsync(string companyKey, string hash)
-    {
-        var parameters = new Dapper.DynamicParameters();
-        parameters.Add("@URLHash", hash);
-
-        var result = await _spRunner.ExecuteFirstOrDefaultAsync<PersonalDetailsDto>(
-            companyKey,
-            "SP_GetSupplierDetailsByURLHash",
-            parameters);
-
-        if (!result.Success)
-            return ApiResponse<PersonalDetailsDto>.Fail(result.Message, result.ErrorType);
-        if (result.Data == null)
-            return ApiResponse<PersonalDetailsDto>.Fail("Can't Access", "NotFound");
-
-        // Query the DynamicProURL value from the DB mapper
-        result.Data.DynamicProUrl = _dbMapperContext.CompanyConnections.FirstOrDefault(cc => cc.CompanyKey == companyKey)?.DynamicProUrl;
-        return ApiResponse<PersonalDetailsDto>.Ok(result.Data);
-    }
-
     public async Task<ApiResponse<List<StatementEntryDto>>> GetSupplierTransactionsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
@@ -98,8 +112,24 @@ public class StatementRetrievalService : IStatementRetrievalService
 
         return ApiResponse<List<StatementEntryDto>>.Ok(list);
     }
+    public async Task<ApiResponse<List<StatementEntryDto>>> GetCustomerSupplierTransactionsAsync(string companyKey, string hash)
+        {
+        var parameters = new Dapper.DynamicParameters();
+        parameters.Add("@URLHash", hash);
+        var result = await _spRunner.ExecuteAsync<StatementEntryDto>(
+            companyKey,
+            "SP_GetCustomerSupplierStatmentByURLHash",
+            parameters);
+        if (!result.Success)
+            return ApiResponse<List<StatementEntryDto>>.Fail(result.Message, result.ErrorType);
+        if (result.Data == null)
+            return ApiResponse<List<StatementEntryDto>>.Fail("No transactions found", "NoData");
+        var list = result.Data.ToList();
+        if (list.Count == 0)
+            return ApiResponse<List<StatementEntryDto>>.Fail("No transactions found", "Empty");
+        return ApiResponse<List<StatementEntryDto>>.Ok(list);
+    }
 
-    //SP_GetCustomerStatmentTotalsByURLHash Create  a method similar to GetCustomerDetailsAsync for this stored procedure use StatmentTotalsDto
     public async Task<ApiResponse<StatmentTotalsDto>> GetCustomerStatementTotalsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
@@ -114,8 +144,6 @@ public class StatementRetrievalService : IStatementRetrievalService
             return ApiResponse<StatmentTotalsDto>.Fail("Can't Access", "NotFound");
         return ApiResponse<StatmentTotalsDto>.Ok(result.Data);
     }
-
-    // SP_GetSupplierStatmentTotalsByURLHash Create  a method similar to GetSupplierDetailsAsync for this stored procedure use StatmentTotalsDto
     public async Task<ApiResponse<StatmentTotalsDto>> GetSupplierStatementTotalsAsync(string companyKey, string hash)
     {
         var parameters = new Dapper.DynamicParameters();
@@ -130,4 +158,19 @@ public class StatementRetrievalService : IStatementRetrievalService
             return ApiResponse<StatmentTotalsDto>.Fail("Can't Access", "NotFound");
         return ApiResponse<StatmentTotalsDto>.Ok(result.Data);
     }
+    public async Task<ApiResponse<StatmentTotalsDto>> GetCustomerSupplierStatementTotalsAsync(string companyKey, string hash)
+        {
+        var parameters = new Dapper.DynamicParameters();
+        parameters.Add("@URLHash", hash);
+        var result = await _spRunner.ExecuteFirstOrDefaultAsync<StatmentTotalsDto>(
+            companyKey,
+            "SP_GetCustomerSupplierStatmentTotalsByURLHash",
+            parameters);
+        if (!result.Success)
+            return ApiResponse<StatmentTotalsDto>.Fail(result.Message, result.ErrorType);
+        if (result.Data == null)
+            return ApiResponse<StatmentTotalsDto>.Fail("Can't Access", "NotFound");
+        return ApiResponse<StatmentTotalsDto>.Ok(result.Data);
+    }
+
 }

@@ -1,5 +1,4 @@
-﻿using ClientStatementPortal.DTOs;
-using ClientStatementPortal.Interfaces;
+﻿using ClientStatementPortal.Interfaces;
 using ClientStatementPortal.Models;
 using ClientStatementPortal.Services;
 using Microsoft.AspNetCore.Diagnostics;
